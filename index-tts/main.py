@@ -5,6 +5,8 @@ import random
 import pandas as pd
 import asyncio
 
+from newspaper.languages import language_regex
+
 from tts import init_tts
 from asr import generate_srt, get_whisper_model
 from loguru import logger
@@ -24,7 +26,7 @@ def read_excel_data(excel_path):
     return df[["英文翻译", "中文句子"]]
 
 
-def main():
+def run(is_image_gen=True, language='en'):
     tts, i18n = init_tts()
     # 读取 Excel 数据
     excel_path = os.path.join(root_dir, "assets", "鸡汤.xlsx")
@@ -34,8 +36,13 @@ def main():
     end_row = 20
 
     for idx, row in df[start_row:end_row].iterrows():
-        english_text = row["英文翻译"]
-        # english_text = row["中文句子"]
+        # english_text = row["英文翻译"]
+        if language == 'en':
+            english_text = row["英文翻译"]
+        elif language == 'zh':
+            english_text = row["中文句子"]
+        else:
+            raise ValueError("Invalid language specified.")
         chinese_text = row["中文句子"]
 
         # 创建以行号命名的输出目录
@@ -46,28 +53,28 @@ def main():
         speaker_audio_path = os.path.join(root_dir, "assets", "小丑音频-1.MP3")
         tts_audio_tmp_output_path = os.path.join(output_dir, f"tts_audio_{idx + 1}.wav")
         tts.infer_fast(speaker_audio_path, english_text, tts_audio_tmp_output_path)
+        if is_image_gen:
+            # 图像生成
+            image_nums = 6
+            prompt = f"""参考这个小丑角色图片，生成{image_nums}张16:9的图。
+            - 角色主体镜头由：全景 → 中景-> 中近景 → 近景 →特写->  极特写
+            - 风格要与参考图风格保持一致
+            - 多图间人物风格保持一致
+            - 场景风格保持一致
+            - 注意图片中不允许出现文字
+            - 注意需要深度结合以下内容的意境：
+            '{chinese_text}'
+            """
+            reference_images_pattern = os.path.join(root_dir, "assets", "小丑主体参考图*.png")
+            reference_images = glob.glob(reference_images_pattern)
 
-        # 图像生成
-        image_nums = 6
-        prompt = f"""参考这个小丑角色图片，生成{image_nums}张16:9的图。
-        - 角色主体镜头由：全景 → 中景-> 中近景 → 近景 →特写->  极特写
-        - 风格要与参考图风格保持一致
-        - 多图间人物风格保持一致
-        - 场景风格保持一致
-        - 图片中不允许出现文字
-        - 注意需要深度结合以下内容的意境：
-        '{chinese_text}'
-        """
-        reference_images_pattern = os.path.join(root_dir, "assets", "小丑主体参考图*.png")
-        reference_images = glob.glob(reference_images_pattern)
+            # 随机选择一张参考图
+            reference_image_path = random.choice(reference_images)
 
-        # 随机选择一张参考图
-        reference_image_path = random.choice(reference_images)
-
-        asyncio.run(
-            image_to_image_start(logger, [reference_image_path], prompt, output_dir, image_nums, sleep_time=60000,
-                                 enable_download_image=True)
-        )
+            asyncio.run(
+                image_to_image_start(logger, [reference_image_path], prompt, output_dir, image_nums, sleep_time=70000,
+                                     enable_download_image=True)
+            )
 
         # Whisper 转录音频并生成 SRT
         whisper = get_whisper_model()
@@ -80,4 +87,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    is_image_gen = False
+    run(is_image_gen, language='zh')

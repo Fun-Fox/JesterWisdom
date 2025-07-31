@@ -96,6 +96,12 @@ async def automate_image_upload_and_input(page, logging, image_paths, prompt, sa
                 scroll_view = page.locator('#chat-route-layout > div > main > div > div > div.inter-rWzItm > div > div.scroll-view-XcV8YY > div > div')
                 if await scroll_view.count() > 0:
                     await scroll_view.evaluate("(element) => element.scrollTop += 800")
+                await page.wait_for_timeout(10000)
+
+                scroll_view = page.locator(
+                    '#chat-route-layout > div > main > div > div > div.inter-rWzItm > div > div.scroll-view-XcV8YY > div > div')
+                if await scroll_view.count() > 0:
+                    await scroll_view.evaluate("(element) => element.scrollTop += 800")
                 await page.wait_for_timeout(3000)
                 # scroll_view = page.locator('#chat-route-layout > div > main > div > div > div.inter-rWzItm > div > div[data-testid="scroll_view"]')
                 # # 确保元素存在

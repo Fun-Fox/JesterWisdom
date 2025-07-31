@@ -90,15 +90,25 @@ async def automate_image_upload_and_input(page, logging, image_paths, prompt, sa
                 # 向下滚动页面
                 logging.info('页面向下滚动')
                 # 获取 scroll_view 元素
-                scroll_view = page.locator('div.inter-rWzItm > div > div[data-testid="scroll_view"]')
+                await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+                await page.evaluate("window.scrollBy(0, 800)")
 
-                # 确保元素存在
-                if not await scroll_view.count():
-                    raise Exception("未找到 scroll_view 元素")
-                # 滚动到底部
-                await scroll_view.evaluate(
-                    "(element) => element.scrollTop = element.scrollHeight"
-                )
+                scroll_view = page.locator('#chat-route-layout > div > main > div > div > div.inter-rWzItm > div > div.scroll-view-XcV8YY > div > div')
+                if await scroll_view.count() > 0:
+                    await scroll_view.evaluate("(element) => element.scrollTop += 800")
+                await page.wait_for_timeout(3000)
+                # scroll_view = page.locator('#chat-route-layout > div > main > div > div > div.inter-rWzItm > div > div[data-testid="scroll_view"]')
+                # # 确保元素存在
+                # if not await scroll_view.count():
+                #     raise Exception("未找到 scroll_view 元素")
+                # # 滚动到底部
+                # await scroll_view.evaluate(
+                #     "(element) => element.scrollTop = element.scrollHeight"
+                # )
+                # await page.wait_for_timeout(3000)  # 等待3秒
+                # await scroll_view.evaluate(
+                #     "(element) => element.scrollTop = element.scrollHeight"
+                # )
                 # 可选：等待内容加载
                 await page.wait_for_timeout(3000)  # 等待3秒
                 urls = await get_picture_urls(page, image_nums)

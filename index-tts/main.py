@@ -1,4 +1,7 @@
+import glob
 import os
+import random
+
 import pandas as pd
 import asyncio
 
@@ -31,7 +34,6 @@ def main():
     end_row = 20
 
     for idx, row in df[start_row:end_row].iterrows():
-
         english_text = row["英文翻译"]
         # english_text = row["中文句子"]
         chinese_text = row["中文句子"]
@@ -47,20 +49,23 @@ def main():
 
         # 图像生成
         image_nums = 6
-        prompt = f"""参考这个小丑角色主体图片，生成{image_nums}张16:9的图。
+        prompt = f"""参考这个小丑角色图片，生成{image_nums}张16:9的图。
         - 角色主体镜头由：全景 → 中景-> 中近景 → 近景 →特写->  极特写
-        - 人物保持一致性
-        - 场景保持统一
-        - 颜色为黑白色
-        - 人物是美国人
+        - 风格要与参考图风格保持一致
+        - 多图间人物风格保持一致
+        - 场景风格保持一致
         - 图片中不允许出现文字
-        重点注意需要结合以下内容意境：
+        - 注意需要深度结合以下内容的意境：
         '{chinese_text}'
         """
-        # reference_image_path = os.path.join(root_dir, "assets", "小丑主体参考图.png")
-        reference_image_path = os.path.join(root_dir, "assets", "小丑主体参考图-2.jpg")
+        reference_images_pattern = os.path.join(root_dir, "assets", "小丑主体参考图*.png")
+        reference_images = glob.glob(reference_images_pattern)
+
+        # 随机选择一张参考图
+        reference_image_path = random.choice(reference_images)
+
         asyncio.run(
-            image_to_image_start(logger, [reference_image_path], prompt, output_dir, image_nums, sleep_time=35000,
+            image_to_image_start(logger, [reference_image_path], prompt, output_dir, image_nums, sleep_time=60000,
                                  enable_download_image=True)
         )
 

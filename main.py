@@ -121,7 +121,7 @@ def alluring_run(is_image_gen=True):
             - 角色主体镜头由：全景 → 中景-> 中近景 → 近景 →特写->  极特写
             - 风格要与参考图风格保持一致
             - 多图间人物风格保持一致
-            - 6张图中美女与不同的怪兽在一起
+            - 每张图美女与不同的怪兽在一起
             - 注意图片中不允许出现文字
             - 注意需要深度结合以下内容的意境：
             '{chinese_text}'
@@ -142,5 +142,5 @@ def alluring_run(is_image_gen=True):
 
 if __name__ == "__main__":
     is_image_gen = True
-    joke_run(is_image_gen, language='en')
-    # alluring_run(is_image_gen)
+    # joke_run(is_image_gen, language='en')
+    alluring_run(is_image_gen)

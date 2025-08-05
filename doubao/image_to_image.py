@@ -82,7 +82,7 @@ async def automate_image_upload_and_input(page, logging, image_paths, prompt, sa
     await page.wait_for_timeout(sleep_time)
 
     if enable_download_image:
-        max_retries = 3
+        max_retries = 5
         retry_count = 0
 
         while retry_count < max_retries:
